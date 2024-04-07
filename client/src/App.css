@@ -1,6 +1,8 @@
 .App {
-  text-align: center;
-}
+align-items: center;  
+  display: flex;
+  margin-top: 10%;
+  justify-content: center;}
 
 .App-logo {
   height: 40vmin;
@@ -26,6 +28,14 @@
 
 .App-link {
   color: #61dafb;
+}
+.box-button{
+  border: 1px solid;
+  height: 100px;
+  width: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 @keyframes App-logo-spin {

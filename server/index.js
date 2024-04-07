@@ -31,19 +31,22 @@ const pool = new Pool({
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
-  socket.on("join_room", (data) => {
-    socket.join(data);
-  });
+//   socket.on("join_room", (data) => {
+//     socket.join(data);
+//   });
 
-  socket.on("send_message", async (data) => {
+  socket.on("send_question", async (data) => {
     try {
+        console.log("data",data);
       const client = await pool.connect();
-      await client.query("INSERT INTO messages (room, message) VALUES ($1, $2)", [data.room, data.message]);
+      await client.query("INSERT INTO messages (question, options) VALUES ($1, $2)", [data.question, data.options]);
       client.release();
     } catch (error) {
       console.error("Error inserting message:", error);
     }
-    io.to(data.room).emit("receive_message", data);
+    console.log("fff", data);
+    io.to(data).emit("receive_message", data);
+  
   });
 });
 
