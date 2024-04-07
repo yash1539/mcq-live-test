@@ -30,16 +30,15 @@ const pool = new Pool({
 
 io.on("connection", (socket) => {
   socket.on("send_question", async (data) => {
-    // socket.broadcast.emit("receive_message", data);
 
-    // try {
-    //     console.log("data",data);
-    //   const client = await pool.connect();
-    //   // await client.query("INSERT INTO messages (question, options) VALUES ($1, $2)", [data.question, data.options]);
-    //   client.release();
-    // } catch (error) {
-    //   console.error("Error inserting message:", error);
-    // }
+    try {
+        console.log("data",data);
+      const client = await pool.connect();
+      await client.query("INSERT INTO messages (question, options) VALUES ($1, $2)", [data.question, data.options]);
+      client.release();
+    } catch (error) {
+      console.error("Error inserting message:", error);
+    }
     console.log("fff", data);
     socket.broadcast.emit("receive_message", data);
   
