@@ -8,6 +8,8 @@ function App() {
   //Room State
   const [room, setRoom] = useState("");
   const [role, setRole] = useState("stdent")
+  const [selectedOption, setSelectedOption] = useState('');
+
   const [name, setName] = useState('');
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState({
@@ -30,6 +32,10 @@ function App() {
     const updatedOptions = { ...options, [optionName]: e.target.value };
     setOptions(updatedOptions);
   };
+  const handleRadioChange = (optionKey) => {
+    setSelectedOption(optionKey);
+  };
+
 
   const handleAddOption = () => {
     const optionCount = Object.keys(options).length;
@@ -68,9 +74,9 @@ function App() {
   useEffect(() => {
     console.log("messageReceived", messageReceived);
   }, [messageReceived])
-  useEffect(() => {
-    localStorage.getItem('userName') && setIsname(true)
-  }, [])
+  // useEffect(() => {
+  //   localStorage.getItem('userName') && setIsname(true)
+  // }, [])
 
   return (
     <div className="App">
@@ -122,9 +128,30 @@ function App() {
       </div>)}
       {isName && (
         <div>
+          {!messageReceived && <div>
           HEY {localStorage.getItem('userName')
           } WE ARE WAITING FOR YOUR QUESTION.
 
+        </div>}
+        <div>
+          {messageReceived?.question}
+          {console.log(messageReceived?.options)}
+          </div>
+          <div>
+          {messageReceived?.options && Object.keys(messageReceived?.options).map((optionKey) => (
+        <div key={optionKey}>
+          <input
+            type="radio"
+            id={optionKey}
+            name="options"
+            value={optionKey}
+            checked={selectedOption === optionKey}
+            onChange={() => handleRadioChange(optionKey)}
+          />
+          <label htmlFor={optionKey}>{messageReceived?.options[optionKey]}</label>
+        </div>
+      ))}
+          </div>
         </div>
 
       )}
