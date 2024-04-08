@@ -13,7 +13,7 @@ app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://66142c9f18c94700a87570de--aquamarine-chimera-fda33e.netlify.app/",
     methods: ["GET", "POST"],
   },
 });
@@ -27,21 +27,46 @@ const pool = new Pool({
   port: process.env.POSTGRES_PORT || 5432,
   ssl: { rejectUnauthorized: false }, // for SSL connection, adjust as needed
 });
+let selectedOptionsCount = {};
+let totalResponses = 0;
 
 io.on("connection", (socket) => {
+
   socket.on("send_question", async (data) => {
 
     try {
-        console.log("data",data);
+      console.log("data", data);
       const client = await pool.connect();
-      await client.query("INSERT INTO messages (question, options) VALUES ($1, $2)", [data.question, data.options]);
+      await client.query(`
+      CREATE TABLE IF NOT EXISTS pool (
+        id SERIAL PRIMARY KEY,
+        question TEXT,
+        options JSON
+      );
+    `);
+      await client.query("INSERT INTO pool (question, options) VALUES ($1, $2)", [data.question, data.options]);
       client.release();
     } catch (error) {
       console.error("Error inserting message:", error);
     }
-    console.log("fff", data);
     socket.broadcast.emit("receive_message", data);
-  
+
+  });
+
+  socket.on("select_option", async (data) => {
+
+    console.log("data selected", data);
+
+    const optionKey = data.slectedOption;
+    selectedOptionsCount[optionKey] = (selectedOptionsCount[optionKey] || 0) + 1;
+    const percentages = {};
+    totalResponses++;
+
+    for (const [option, count] of Object.entries(selectedOptionsCount)) {
+      percentages[option] = ((count / totalResponses) * 100).toFixed(2) + "%";
+    }
+
+    io.emit("selected_options_percentage_updated", percentages);
   });
 });
 

@@ -8,7 +8,9 @@ function App() {
   //Room State
   const [room, setRoom] = useState("");
   const [role, setRole] = useState("stdent")
+  const [isSubmitted, setIsSubmitted] = useState(false)
   const [selectedOption, setSelectedOption] = useState('');
+  const [pollReceived, setPollReceived] = useState('');
 
   const [name, setName] = useState('');
   const [question, setQuestion] = useState('');
@@ -44,7 +46,11 @@ function App() {
       setOptions({ ...options, [newOptionName]: '' });
     }
   };
-
+  const handleSelectOption = (slectedOption, messageReceived) => {
+    setIsSubmitted(true)
+    setSelectedOption(slectedOption);
+    socket.emit("select_option", { slectedOption, messageReceived });
+  };
   const handleAskQuestion = (question, options) => {
     socket.emit("send_question", { question, options });
     console.log("type");
@@ -71,6 +77,14 @@ function App() {
       console.log("emit receive", data);
     });
   });
+
+  useEffect(() => {
+    socket.on("selected_options_percentage_updated", (data) => {
+
+      setPollReceived(data);
+    });
+  }, []);
+
   useEffect(() => {
     console.log("messageReceived", messageReceived);
   }, [messageReceived])
@@ -115,6 +129,17 @@ function App() {
             <button onClick={handleAddOption}>Add Another Option</button>
             <button onClick={() => handleAskQuestion(question, options)}>Ask Question</button>
           </div>
+          {messageReceived && (
+            <div>
+              <div>{messageReceived.question}</div>
+              {messageReceived.options &&
+                Object.keys(messageReceived.options).map((optionKey) => (
+                  <div key={optionKey}>
+                    {messageReceived.options[optionKey]}: {pollReceived[optionKey] ?? "0%"}
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
 
       </div> : <div>
@@ -126,35 +151,54 @@ function App() {
           <div className="box-button" onClick={() => { setRole("student") }}>I am a student</div>
         </div>
       </div>)}
-      {isName && (
-        <div>
-          {!messageReceived && <div>
-          HEY {localStorage.getItem('userName')
-          } WE ARE WAITING FOR YOUR QUESTION.
+      {isName &&
+        (
+          (!isSubmitted ? <div>
+            {!messageReceived && <div>
+              HEY {localStorage.getItem('userName')
+              } WE ARE WAITING FOR YOUR QUESTION.
 
-        </div>}
-        <div>
-          {messageReceived?.question}
-          {console.log(messageReceived?.options)}
-          </div>
-          <div>
-          {messageReceived?.options && Object.keys(messageReceived?.options).map((optionKey) => (
-        <div key={optionKey}>
-          <input
-            type="radio"
-            id={optionKey}
-            name="options"
-            value={optionKey}
-            checked={selectedOption === optionKey}
-            onChange={() => handleRadioChange(optionKey)}
-          />
-          <label htmlFor={optionKey}>{messageReceived?.options[optionKey]}</label>
-        </div>
-      ))}
-          </div>
-        </div>
+            </div>}
+            <div>
+              {messageReceived?.question}
+              {console.log(messageReceived?.options)}
+            </div>
+            <div>
+              {messageReceived?.options && Object.keys(messageReceived?.options).map((optionKey) => (
+                <div key={optionKey}>
+                  <input
+                    type="radio"
+                    id={optionKey}
+                    name="options"
+                    value={optionKey}
+                    checked={selectedOption === optionKey}
+                    onChange={() => handleRadioChange(optionKey)}
+                  />
+                  <label htmlFor={optionKey}>{messageReceived?.options[optionKey]}</label>
+                </div>
+              ))}
+              <button onClick={() => { handleSelectOption(selectedOption, messageReceived) }}>Submit Answer</button>
+            </div>
+          </div> : <div>
+            <div>
+              <div>Poll Received</div>
+            </div>
+            {messageReceived && (
+              <div>
+                <div>{messageReceived.question}</div>
+                {messageReceived.options &&
+                  Object.keys(messageReceived.options).map((optionKey) => (
+                    <div key={optionKey}>
+                      {messageReceived.options[optionKey]}: {pollReceived[optionKey] ?? "0%"}
+                    </div>
+                  ))}
+              </div>
+            )}
 
-      )}
+            {console.log("poill", pollReceived)}
+          </div>)
+
+        )}
     </div>
   );
 }
