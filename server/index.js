@@ -22,7 +22,7 @@ const io = new Server(server, {
 
 app.get("/", (req, res) => {
   console.log("process", process.env.URL);
-  res.send("Server is running");
+  res.send("Server is running", process.env.URL);
 });
 
 // PostgreSQL connection pool
