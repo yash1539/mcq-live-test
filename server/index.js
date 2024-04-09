@@ -15,7 +15,7 @@ app.use(cors({
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://mcq-test-3306a.web.app",
     methods: ["GET", "POST"],
   },
 });
