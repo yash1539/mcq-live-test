@@ -8,7 +8,9 @@ const cors = require("cors");
 // Load environment variables
 require("dotenv").config();
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.URL
+}));
 
 const server = http.createServer(app);
 const io = new Server(server, {
