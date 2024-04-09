@@ -18,6 +18,10 @@ const io = new Server(server, {
   },
 });
 
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
+
 // PostgreSQL connection pool
 const pool = new Pool({
   user: process.env.POSTGRES_USER,
