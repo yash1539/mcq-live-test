@@ -9,7 +9,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 app.use(cors({
-  // origin: process.env.URL
+  origin: '*',
 }));
 
 const server = http.createServer(app);
