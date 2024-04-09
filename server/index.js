@@ -11,7 +11,12 @@ require("dotenv").config();
 app.use(cors());
 
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
 
 // PostgreSQL connection pool
 const pool = new Pool({
