@@ -11,12 +11,7 @@ require("dotenv").config();
 app.use(cors());
 
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    // origin: "https://661431f43353370ddf2d78f9--effulgent-pony-5cfa56.netlify.app/",
-    methods: ["GET", "POST"],
-  },
-});
+const io = new Server(server);
 
 // PostgreSQL connection pool
 const pool = new Pool({
